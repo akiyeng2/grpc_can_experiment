@@ -23,9 +23,12 @@ package romi_can;
 
 // The greeting service definition.
 service GRPCTalonSRX {
-  // Sends a greeting
-  rpc SetTalon (SetRequest) returns (SetReply) {}
+  rpc CreateTalon (CreateRequest) returns (StatusReply);
+  rpc SetTalon (SetRequest) returns (StatusReply) {}
+}
 
+message CreateRequest {
+  int32 id = 1;
 }
 
 // The request message containing the user's name.
@@ -36,9 +39,10 @@ message SetRequest {
 }
 
 
-message SetReply {
+message StatusReply {
   string status = 1;
 }
+
 
 enum TalonSRXControlMode {
   PercentOutput = 0;

@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eromi_can.proto\x12\x08romi_can\"T\n\nSetRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x01\x12+\n\x04mode\x18\x03 \x01(\x0e\x32\x1d.romi_can.TalonSRXControlMode\"\x1a\n\x08SetReply\x12\x0e\n\x06status\x18\x01 \x01(\t*D\n\x13TalonSRXControlMode\x12\x11\n\rPercentOutput\x10\x00\x12\x0c\n\x08Position\x10\x01\x12\x0c\n\x08\x44isabled\x10\x0f\x32\x46\n\x0cGRPCTalonSRX\x12\x36\n\x08SetTalon\x12\x14.romi_can.SetRequest\x1a\x12.romi_can.SetReply\"\x00\x42\x31\n\x19io.grpc.examples.romi_canB\x0cRomiCanProtoP\x01\xa2\x02\x03HLWb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eromi_can.proto\x12\x08romi_can\"\x1b\n\rCreateRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"T\n\nSetRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x01\x12+\n\x04mode\x18\x03 \x01(\x0e\x32\x1d.romi_can.TalonSRXControlMode\"\x1d\n\x0bStatusReply\x12\x0e\n\x06status\x18\x01 \x01(\t*D\n\x13TalonSRXControlMode\x12\x11\n\rPercentOutput\x10\x00\x12\x0c\n\x08Position\x10\x01\x12\x0c\n\x08\x44isabled\x10\x0f\x32\x88\x01\n\x0cGRPCTalonSRX\x12=\n\x0b\x43reateTalon\x12\x17.romi_can.CreateRequest\x1a\x15.romi_can.StatusReply\x12\x39\n\x08SetTalon\x12\x14.romi_can.SetRequest\x1a\x15.romi_can.StatusReply\"\x00\x42\x31\n\x19io.grpc.examples.romi_canB\x0cRomiCanProtoP\x01\xa2\x02\x03HLWb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,12 +22,14 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\031io.grpc.examples.romi_canB\014RomiCanProtoP\001\242\002\003HLW'
-  _globals['_TALONSRXCONTROLMODE']._serialized_start=142
-  _globals['_TALONSRXCONTROLMODE']._serialized_end=210
-  _globals['_SETREQUEST']._serialized_start=28
-  _globals['_SETREQUEST']._serialized_end=112
-  _globals['_SETREPLY']._serialized_start=114
-  _globals['_SETREPLY']._serialized_end=140
-  _globals['_GRPCTALONSRX']._serialized_start=212
-  _globals['_GRPCTALONSRX']._serialized_end=282
+  _globals['_TALONSRXCONTROLMODE']._serialized_start=174
+  _globals['_TALONSRXCONTROLMODE']._serialized_end=242
+  _globals['_CREATEREQUEST']._serialized_start=28
+  _globals['_CREATEREQUEST']._serialized_end=55
+  _globals['_SETREQUEST']._serialized_start=57
+  _globals['_SETREQUEST']._serialized_end=141
+  _globals['_STATUSREPLY']._serialized_start=143
+  _globals['_STATUSREPLY']._serialized_end=172
+  _globals['_GRPCTALONSRX']._serialized_start=245
+  _globals['_GRPCTALONSRX']._serialized_end=381
 # @@protoc_insertion_point(module_scope)

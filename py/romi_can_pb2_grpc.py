@@ -15,10 +15,15 @@ class GRPCTalonSRXStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.CreateTalon = channel.unary_unary(
+                '/romi_can.GRPCTalonSRX/CreateTalon',
+                request_serializer=romi__can__pb2.CreateRequest.SerializeToString,
+                response_deserializer=romi__can__pb2.StatusReply.FromString,
+                )
         self.SetTalon = channel.unary_unary(
                 '/romi_can.GRPCTalonSRX/SetTalon',
                 request_serializer=romi__can__pb2.SetRequest.SerializeToString,
-                response_deserializer=romi__can__pb2.SetReply.FromString,
+                response_deserializer=romi__can__pb2.StatusReply.FromString,
                 )
 
 
@@ -26,9 +31,14 @@ class GRPCTalonSRXServicer(object):
     """The greeting service definition.
     """
 
+    def CreateTalon(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def SetTalon(self, request, context):
-        """Sends a greeting
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -36,10 +46,15 @@ class GRPCTalonSRXServicer(object):
 
 def add_GRPCTalonSRXServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'CreateTalon': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateTalon,
+                    request_deserializer=romi__can__pb2.CreateRequest.FromString,
+                    response_serializer=romi__can__pb2.StatusReply.SerializeToString,
+            ),
             'SetTalon': grpc.unary_unary_rpc_method_handler(
                     servicer.SetTalon,
                     request_deserializer=romi__can__pb2.SetRequest.FromString,
-                    response_serializer=romi__can__pb2.SetReply.SerializeToString,
+                    response_serializer=romi__can__pb2.StatusReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -51,6 +66,23 @@ def add_GRPCTalonSRXServicer_to_server(servicer, server):
 class GRPCTalonSRX(object):
     """The greeting service definition.
     """
+
+    @staticmethod
+    def CreateTalon(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/romi_can.GRPCTalonSRX/CreateTalon',
+            romi__can__pb2.CreateRequest.SerializeToString,
+            romi__can__pb2.StatusReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def SetTalon(request,
@@ -65,6 +97,6 @@ class GRPCTalonSRX(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/romi_can.GRPCTalonSRX/SetTalon',
             romi__can__pb2.SetRequest.SerializeToString,
-            romi__can__pb2.SetReply.FromString,
+            romi__can__pb2.StatusReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

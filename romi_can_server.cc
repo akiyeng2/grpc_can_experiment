@@ -24,11 +24,9 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
 
+
+
 #define Phoenix_No_WPI // remove WPI dependencies
-#include "ctre/Phoenix.h"
-#include "ctre/phoenix/platform/Platform.hpp"
-#include "ctre/phoenix/unmanaged/Unmanaged.h"
-#include "ctre/phoenix/cci/Unmanaged_CCI.h"
 
 
 
@@ -44,30 +42,57 @@ using grpc::ServerContext;
 using grpc::Status;
 using romi_can::GRPCTalonSRX;
 using romi_can::SetRequest;
-using romi_can::SetReply;
+using romi_can::StatusReply;
+using romi_can::CreateRequest;
 
+
+#include "ctre/Phoenix.h"
+#include "ctre/Phoenix.h"
+#include "ctre/phoenix/platform/Platform.hpp"
+#include "ctre/phoenix/unmanaged/Unmanaged.h"
+#include "ctre/phoenix/cci/Unmanaged_CCI.h"
+#include <memory>
 using namespace ctre::phoenix;
 using namespace ctre::phoenix::platform;
 using namespace ctre::phoenix::motorcontrol;
 using namespace ctre::phoenix::motorcontrol::can;
 
+#include <map>
+
+std::map <int, std::shared_ptr<ctre::phoenix::motorcontrol::can::TalonSRX>> talons;
+
+
+
 /* make some talons for drive train */
 std::string interface = "can0";
 TalonSRX talLeft(1, interface); //Use the specified interface
-TalonSRX talRght(0); //Use the default interface (can0)
+TalonSRX talRight(0); //Use the default interface (can0)
 
 // Logic and data behind the server's behavior.
 class TalonServiceImpl final : public GRPCTalonSRX::Service {
+  
+  Status CreateTalon(ServerContext* context, const CreateRequest* request,
+                  StatusReply* reply) override {
+    int id = request->id();
+    std::string response("Creating talon " + std::to_string(id));
+    std::shared_ptr<TalonSRX> tal(new TalonSRX(id));
+    talons[id] = tal;
+    reply->set_status(response);
+    return Status::OK;
+  }
+
   Status SetTalon(ServerContext* context, const SetRequest* request,
-                  SetReply* reply) override {
+                  StatusReply* reply) override {
     std::string response("Setting talon " + std::to_string(request->id()) + " to " + std::to_string(request->value()));
     reply->set_status(response);
-    talLeft.Set(TalonSRXControlMode(static_cast<int>(request->mode())), request->value());
+    talons[request->id()]->Set(TalonSRXControlMode(static_cast<int>(request->mode())), request->value());
     return Status::OK;
   }
 };
 
 void RunServer() {
+
+
   std::string server_address("0.0.0.0:50051");
   TalonServiceImpl service;
 

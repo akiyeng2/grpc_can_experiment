@@ -14,6 +14,12 @@ PercentOutput: TalonSRXControlMode
 Position: TalonSRXControlMode
 Disabled: TalonSRXControlMode
 
+class CreateRequest(_message.Message):
+    __slots__ = ["id"]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    def __init__(self, id: _Optional[int] = ...) -> None: ...
+
 class SetRequest(_message.Message):
     __slots__ = ["id", "value", "mode"]
     ID_FIELD_NUMBER: _ClassVar[int]
@@ -24,7 +30,7 @@ class SetRequest(_message.Message):
     mode: TalonSRXControlMode
     def __init__(self, id: _Optional[int] = ..., value: _Optional[float] = ..., mode: _Optional[_Union[TalonSRXControlMode, str]] = ...) -> None: ...
 
-class SetReply(_message.Message):
+class StatusReply(_message.Message):
     __slots__ = ["status"]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     status: str
