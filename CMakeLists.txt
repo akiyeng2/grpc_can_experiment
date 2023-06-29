@@ -19,14 +19,39 @@
 
 cmake_minimum_required(VERSION 3.5.1)
 
-project(HelloWorld C CXX)
-add_definitions(-std=c++17)
+project(RomiCan C CXX)
+add_definitions(-std=c++20)
 
-include(../cmake/common.cmake)
+
+
+option(protobuf_MODULE_COMPATIBLE TRUE)
+find_package(Protobuf CONFIG REQUIRED)
+message(STATUS "Using protobuf ${Protobuf_VERSION}")
+
+
+set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+set(_REFLECTION gRPC::grpc++_reflection)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_PROTOBUF_PROTOC protoc)
+else()
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+endif()
+
+# Find gRPC installation
+# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
+find_package(gRPC CONFIG REQUIRED)
+message(STATUS "Using gRPC ${gRPC_VERSION}")
+
+set(_GRPC_GRPCPP gRPC::grpc++)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+else()
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+endif()
 
 # Proto file
-get_filename_component(hw_proto "../../protos/helloworld.proto" ABSOLUTE)
-get_filename_component(hw_proto_path "${hw_proto}" PATH)
+get_filename_component(romi_can_proto "romi_can.proto" ABSOLUTE)
+get_filename_component(romi_can_proto_path "${romi_can_proto}" PATH)
 
 # Phoenix part
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -34,6 +59,7 @@ find_package (Threads REQUIRED)
 
 set(PHOENIX_SOURCE_DIR "${PROJECT_SOURCE_DIR}/Phoenix-Linux-SocketCAN-Example")
 include_directories("${PHOENIX_SOURCE_DIR}/include")
+
 
 
 if (${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabihf") # Jetson TK1 / Pi
@@ -44,50 +70,51 @@ else()
     set(PHOENIX_LIBS_DIR ${PHOENIX_SOURCE_DIR}/lib/x86-64)
 endif()
 
-
+set(CMAKE_INSTALL_RPATH "${PHOENIX_LIBS_DIR}")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Generated sources
-set(hw_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.cc")
-set(hw_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.h")
-set(hw_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.cc")
-set(hw_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.h")
+set(romi_can_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/romi_can.pb.cc")
+set(romi_can_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/romi_can.pb.h")
+set(romi_can_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/romi_can.grpc.pb.cc")
+set(romi_can_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/romi_can.grpc.pb.h")
 add_custom_command(
-      OUTPUT "${hw_proto_srcs}" "${hw_proto_hdrs}" "${hw_grpc_srcs}" "${hw_grpc_hdrs}"
+      OUTPUT "${romi_can_proto_srcs}" "${romi_can_proto_hdrs}" "${romi_can_grpc_srcs}" "${romi_can_grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
       ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
         --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-        -I "${hw_proto_path}"
+        -I "${romi_can_proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${hw_proto}"
-      DEPENDS "${hw_proto}")
+        "${romi_can_proto}"
+      DEPENDS "${romi_can_proto}")
 
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-# hw_grpc_proto
-add_library(hw_grpc_proto
-  ${hw_grpc_srcs}
-  ${hw_grpc_hdrs}
-  ${hw_proto_srcs}
-  ${hw_proto_hdrs})
-target_link_libraries(hw_grpc_proto
+# romi_can_grpc_proto
+add_library(romi_can_grpc_proto
+  ${romi_can_grpc_srcs}
+  ${romi_can_grpc_hdrs}
+  ${romi_can_proto_srcs}
+  ${romi_can_proto_hdrs})
+target_link_libraries(romi_can_grpc_proto
   ${_REFLECTION}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF})
 
+message(PHOENIX_LIBS_DIR="${PHOENIX_LIBS_DIR}")
+ 
 # Targets greeter_[async_](client|server)
 foreach(_target
-  greeter_client greeter_server 
-  greeter_callback_client greeter_callback_server)
+   romi_can_server )
   add_executable(${_target} "${_target}.cc")
   target_link_libraries(${_target}
-    hw_grpc_proto
+    romi_can_grpc_proto
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
     ${PHOENIX_LIBS_DIR}/libCTRE_Phoenix.so
     ${PHOENIX_LIBS_DIR}/libCTRE_PhoenixCCI.so
     ${PHOENIX_LIBS_DIR}/libCTRE_PhoenixTools.so
-
     Threads::Threads)
 endforeach()
